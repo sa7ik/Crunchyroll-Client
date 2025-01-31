@@ -1,102 +1,130 @@
-import React from 'react';
-import { useParams,useNavigate } from 'react-router-dom';
-import Footer from '../Footer/Footer';
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { Axios } from "../MainRouter";
+import Cookies from "js-cookie";
+import { Modal, Button } from "react-bootstrap";
+import Footer from "../Footer/Footer";
 
 const VideoPage = () => {
   const { videoId } = useParams();
-
+  
   const navigate = useNavigate();
+
+  const [videos, setVideos] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const primeToken = Cookies.get("premiumToken");
+  console.log("prime",primeToken);
+  
+
+  const display = () => {
+    setShowModal(!primeToken);
+  };
+
+  useEffect(() => {
+    display();
+  }, [primeToken]);
+
+  const handleModalClose = () => {
+    setShowModal(false);
+    navigate("/Plan");
+  };
+
+  // Fetch videos from the backend
+  useEffect(() => {
+    const fetchVideos = async () => {
+      try {
+        const response = await Axios.get(`/user/videoById/${videoId}`);// Adjust the endpoint based on your backend
+        setVideos(response.data); // Assuming your backend returns videos in `response.data.videos`
+      } catch (err) {
+        setError("Failed to load videos.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchVideos();
+  }, []);
 
   const handleCardClick = (anotherVideoId) => {
     navigate(`/videos/${anotherVideoId}`);
   };
 
-  const data = [
-    {
-      id: '1',
-      image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7Vp5sq4V8TydlrCJBCVuWZNybn9_pdXHwHA&s',
-      title: 'Solo Leveling',
-      url: 'https://www.w3schools.com/html/mov_bbb.mp4',
-      description: 'This is a description for Solo Leveling.',
-      rating: '4.2/5',
-    },
-    {
-      id: '2',
-      image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTgZia5lRQM842gv-Ue9HuYpobxSTBMVc0Qjg&s',
-      title: 'Frieren',
-      url: 'https://www.w3schools.com/html/mov_bbb.mp4',
-      description: 'This is a description for Frieren.',
-      rating: '4.2/5',
-    },
-    {
-      id: '3',
-      image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTytYusXda_oNnk_vVfosgCwoSzyn_gbawFXQ&s',
-      title: 'Jojo',
-      url: 'https://www.w3schools.com/html/mov_bbb.mp4',
-      description: 'This is a description for Jojo.',
-      rating: '4.2/5',
-    },
-    {
-      id: '4',
-      image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRMzaJAiF50tQ4AyBPdI2DbG7v_6sm6CiHWXw&s',
-      title: 'Chainsaw Man',
-      url: 'https://www.w3schools.com/html/mov_bbb.mp4',
-      description: 'This is a description for Chainsaw Man.',
-      rating: '4.2/5',
-    },
-    {
-      id: '5',
-      image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTvOz5_QiRloFBbeIU85vM0BBOU3uGHSeZvlw&s',
-      title: 'jujutsu Kaisen',
-      url: 'https://www.w3schools.com/html/mov_bbb.mp4',
-      description: 'This is a description for jujutsu Kaisen.',
-      rating: '4.2/5',
-    },
-  ];
+  if (loading) {
+    return <h1 className="text-white text-center">Loading...</h1>;
+  }
 
-  const video = data.find((item) => item.id === videoId);
+  if (error) {
+    return <h1 className="text-white text-center">{error}</h1>;
+  }
 
-  if (!video) {
+  if (!videos) {
     return <h1 className="text-white text-center">Video not found</h1>;
   }
 
   return (
-    <div className="p-4 bg-black text-white min-h-screen">
-      <div className="w-full mb-8">
-        <img
-          src={video.image}
-          alt={video.title}
-          className="w-full h-96 object-cover"
-        />
-      </div>
-      <div className="mt-4 text-white">
-            <h1 className="text-4xl font-bold mb-2">{video.title}</h1>
-            <p className="text-lg mb-1">
-              <span className="font-semibold">Rating:</span> {video.rating}
-            </p>
-            <p className="text-lg">
-              <span className="font-semibold">Description:</span> {video.description}
-            </p>
-          </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-       {data.map((item) => (
+    
+      <div className="relative w-full bg-gray-950 h-full overflow-hidden pb-16">
+        {/* Centered Modal */}
+        {showModal && (
+          <Modal show={showModal} onHide={handleModalClose} centered>
+            <Modal.Dialog className="flex items-center justify-center h-screen">
+              <Modal.Body className="text-center bg-gray-900 text-white p-6 rounded-lg shadow-lg">
+                <h4 className="font-bold text-lg">Your payment is pending.</h4>
+                <p className="mt-3 text-gray-300">
+                  In the meantime, browse TV shows and movies.
+                </p>
+                <Button
+                  variant="light"
+                  onClick={handleModalClose}
+                  className="mt-4 px-4 py-2 font-semibold text-white"
+                >
+                  OK
+                </Button>
+              </Modal.Body>
+            </Modal.Dialog>
+          </Modal>
+        )}
+  
+        {/* Video Banner */}
+        <div className="w-full mb-8">
+          <img
+            src={videos?.Image || "https://via.placeholder.com/800x400"} // Fallback image
+            alt={videos?.title || "Video Thumbnail"}
+            className="w-full h-80 object-cover rounded-lg shadow-lg"
+          />
+        </div>
+  
+        {/* Video Details */}
+        <div className="mt-6 px-4 text-white">
+          <h1 className="text-4xl font-extrabold mb-4">{videos?.title}</h1>
+          <p className="text-lg">
+            <span className="font-semibold">Description:</span> {videos?.description}
+          </p>
+        </div>
+  
+        {/* Video Thumbnails */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-8 px-4">
           <div
-            key={item.id}
-            className="bg-gray-800 p-1 rounded cursor-pointer"
-            onClick={() => handleCardClick(item.id)}
+            className="bg-gray-800 p-2 rounded-lg cursor-pointer transform transition hover:scale-105 shadow-md"
+            onClick={() => handleCardClick(videos?._id)}
           >
             <img
-              src={item.image}
-              alt={item.title}
-              className="w-full h-64 object-cover rounded mb-4"
+              src={videos?.Image || "https://via.placeholder.com/300x200"}
+              alt={videos?.title}
+              className="w-full h-48 object-cover rounded-lg"
             />
-            <h2 className="text-white text-xl font-bold text-center mb-2">{item.title}</h2>
+            <h2 className="text-white text-lg font-bold text-center mt-3">
+              {videos?.title}
+            </h2>
           </div>
-        ))}
+        </div>
+  
+        <Footer />
       </div>
-      <Footer/>
-    </div>
-  );
-};
+    );
+  };
+  
 
 export default VideoPage;

@@ -8,11 +8,12 @@ import Footer from "../Footer/Footer";
 import play from '../Navbar/play.png';
 import save from '../Navbar/save.png';
 import { useVideoContext } from "../../Context/VideoContext";
+import Cookies from 'js-cookie';
 
 function Home() {
-
-  const { addToWatchlist,data } = useVideoContext();
-  console.log(data);
+  const userId=Cookies.get("user")
+  const { addToWatchlist,videos, fetchWatchlist } = useVideoContext();
+  // console.log(addToWatchlist)
     
     const navigate = useNavigate();
     const images = [
@@ -47,11 +48,21 @@ function Home() {
   
       return () => clearInterval(interval);
     }, [images.length]);
+      
+    const handleaddtowatchlist=async(item)=>{
+      try {
+        await addToWatchlist(item)
+        // await fetchWatchlist(userId)
+      } catch (error) {
+        console.log(error);
+        
+      }
+    }
   return (
-    <div className=''>
+    <div className='w-full'>
         <Navbar/>
          <div
-      className="flex items-center justify-center min-h-screen"
+      className="flex items-center justify-center min-h-full"
       style={{
         backgroundImage: `url(${images[currentImageIndex]})`,
         backgroundSize: "cover",
@@ -69,15 +80,16 @@ function Home() {
     <p className="text-left" style={{ color: '#ff640a' }}>Fantastic Free Anime</p>
 
     <Slider {...settings}>
-      {data.map((item, index) => (
+      {videos.map((item, index) => (
         <div
           key={item.id}
           className="relative bg-black cursor-pointer group"
-          onClick={() => item.url && navigate(`/video/${item.id}`)}
+          onClick={() => item.
+            videoUrl && navigate(`/video/${item._id}`)}
         >
           {/* Card Image */}
           <img
-            src={item.image}
+            src={item.Image}
             alt={item.title}
             className="w-60 h-60 object-contain"
           />
@@ -87,7 +99,7 @@ function Home() {
             {/* Details */}
             <h2 className="text-lg font-bold text-white">{item.title}</h2>
             <p className="text-sm text-gray-400 mt-2">{item.description}</p>
-            <p className="text-sm text-orange-500 mt-2">Rating: {item.rating}</p>
+            {/* <p className="text-sm text-orange-500 mt-2">Rating: {item.rating}</p> */}
 
             {/* Actions */}
             <div className="mt-4 flex space-x-4">
@@ -97,7 +109,7 @@ function Home() {
                   e.stopPropagation(); // Prevent navigating when clicking the button
                   // Add to Watchlist logic here
                   console.log(`Add ${item.title} to Watchlist`);
-                  addToWatchlist(item);
+                  handleaddtowatchlist(item);
                 }}
               >
                 <img src={save} alt="Premium" className="w-6 h-6" />
@@ -109,7 +121,7 @@ function Home() {
                   console.log(`Play ${item.title}`);
                 }}
               >
-               <img src={play} alt="Premium" className="w-6 h-6" />
+               <img src={play} alt="Play" className="w-6 h-6" />
               </button>
             </div>
           </div>
@@ -128,15 +140,15 @@ function Home() {
     <p className="text-left" style={{ color: '#ff640a' }}>Check out the first few episodes of these new shows for free!</p>
 
     <Slider {...settings}>
-      {data.map((item, index) => (
+      {videos.map((item, index) => (
         <div
           key={item.id}
           className="relative bg-black cursor-pointer group"
-          onClick={() => item.url && navigate(`/video/${item.id}`)}
+          onClick={() => item.videoUrl && navigate(`/video/${item._id}`)}
         >
           {/* Card Image */}
           <img
-            src={item.image}
+            src={item.Image}
             alt={item.title}
             className="w-60 h-60 object-contain"
           />
@@ -146,7 +158,7 @@ function Home() {
             {/* Details */}
             <h2 className="text-lg font-bold text-white">{item.title}</h2>
             <p className="text-sm text-gray-400 mt-2">{item.description}</p>
-            <p className="text-sm text-orange-500 mt-2">Rating: {item.rating}</p>
+            {/* <p className="text-sm text-orange-500 mt-2">Rating: {item.rating}</p> */}
 
             {/* Actions */}
             <div className="mt-4 flex space-x-4">
@@ -156,7 +168,7 @@ function Home() {
                   e.stopPropagation(); // Prevent navigating when clicking the button
                   // Add to Watchlist logic here
                   console.log(`Add ${item.title} to Watchlist`);
-                  addToWatchlist(item);
+                  handleaddtowatchlist(item);
                 }}
               >
                 <img src={save} alt="Premium" className="w-6 h-6" />
@@ -183,15 +195,15 @@ function Home() {
     <p className="text-left" style={{ color: '#ff640a' }}>Check out these anime only available on Crunchyroll!</p>
 
     <Slider {...settings}>
-      {data.map((item, index) => (
+      {videos.map((item, index) => (
         <div
           key={item.id}
           className="relative bg-black cursor-pointer group"
-          onClick={() => item.url && navigate(`/video/${item.id}`)}
+          onClick={() => item.videoUrl && navigate(`/video/${item._id}`)}
         >
           {/* Card Image */}
           <img
-            src={item.image}
+            src={item.Image}
             alt={item.title}
             className="w-60 h-60 object-contain"
           />
@@ -201,7 +213,7 @@ function Home() {
             {/* Details */}
             <h2 className="text-lg font-bold text-white">{item.title}</h2>
             <p className="text-sm text-gray-400 mt-2">{item.description}</p>
-            <p className="text-sm text-orange-500 mt-2">Rating: {item.rating}</p>
+            {/* <p className="text-sm text-orange-500 mt-2">Rating: {item.rating}</p> */}
 
             {/* Actions */}
             <div className="mt-4 flex space-x-4">
@@ -211,7 +223,7 @@ function Home() {
                   e.stopPropagation(); // Prevent navigating when clicking the button
                   // Add to Watchlist logic here
                   console.log(`Add ${item.title} to Watchlist`);
-                  addToWatchlist(item);
+                  handleaddtowatchlist(item);
                 }}
               >
                 <img src={save} alt="Premium" className="w-6 h-6" />
@@ -237,15 +249,15 @@ function Home() {
     <h1 className="text-white text-left font-bold">Top Picks for You</h1>
 
     <Slider {...settings}>
-      {data.map((item, index) => (
+      {videos.map((item, index) => (
         <div
           key={item.id}
           className="relative bg-black cursor-pointer group"
-          onClick={() => item.url && navigate(`/video/${item.id}`)}
+          onClick={() => item.videoUrl && navigate(`/video/${item._id}`)}
         >
           {/* Card Image */}
           <img
-            src={item.image}
+            src={item.Image}
             alt={item.title}
             className="w-60 h-60 object-contain"
           />
@@ -255,7 +267,7 @@ function Home() {
             {/* Details */}
             <h2 className="text-lg font-bold text-white">{item.title}</h2>
             <p className="text-sm text-gray-400 mt-2">{item.description}</p>
-            <p className="text-sm text-orange-500 mt-2">Rating: {item.rating}</p>
+            {/* <p className="text-sm text-orange-500 mt-2">Rating: {item.rating}</p> */}
 
             {/* Actions */}
             <div className="mt-4 flex space-x-4">
@@ -265,7 +277,7 @@ function Home() {
                   e.stopPropagation(); // Prevent navigating when clicking the button
                   // Add to Watchlist logic here
                   console.log(`Add ${item.title} to Watchlist`);
-                  addToWatchlist(item);
+                  handleaddtowatchlist(item);
                 }}
               >
                 <img src={save} alt="Premium" className="w-6 h-6" />
